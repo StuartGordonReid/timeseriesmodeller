@@ -19,7 +19,7 @@ public class FFNNParticle {
     BasicNetwork particle;
     int numInputs, numHidden, numOutputs;
 
-    FFNNParticle(int in, int hidden, int out) {
+    public FFNNParticle(int in, int hidden, int out) {
         numInputs = in;
         numHidden = hidden;
         numOutputs = out;
