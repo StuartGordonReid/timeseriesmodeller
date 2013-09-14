@@ -4,14 +4,14 @@
  * and open the template in the editor.
  */
 
-package recurrent;
+package pso;
 
 /**
  *
  * @author stuart
  */
-public class Hopfield {
-    public Hopfield() {
-        
+public class StandardPSO {
+
+    public StandardPSO() {
     }
 }

@@ -9,17 +9,18 @@ package recurrent;
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.pattern.ElmanPattern;
+import org.encog.neural.pattern.JordanPattern;
 
 /**
  *
  * @author stuart
  */
-public class Elman {
+public class Jordan {
 
     BasicNetwork nn;
     int numInputs, numHidden, numOutputs;
 
-    public Elman(int in, int hidden, int out) {
+    public Jordan(int in, int hidden, int out) {
         numInputs = in;
         numHidden = hidden;
         numOutputs = out;
@@ -27,7 +28,8 @@ public class Elman {
     }
 
     private BasicNetwork constructParticle() {
-        ElmanPattern pattern = new ElmanPattern();
+        // construct an Jordan type network
+        JordanPattern pattern = new JordanPattern();
         pattern.setActivationFunction(new ActivationSigmoid());
         pattern.setInputNeurons(numInputs);
         pattern.addHiddenLayer(numHidden);
