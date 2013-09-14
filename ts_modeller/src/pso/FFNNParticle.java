@@ -17,6 +17,9 @@ import org.encog.neural.pattern.FeedForwardPattern;
 public class FFNNParticle {
 
     BasicNetwork particle;
+    double velocity;
+    double localBestScore;
+    double[] localBest;
     int numInputs, numHidden, numOutputs;
 
     public FFNNParticle(int in, int hidden, int out) {
@@ -24,6 +27,7 @@ public class FFNNParticle {
         numHidden = hidden;
         numOutputs = out;
         particle = constructParticle();
+        localBestScore = Double.MAX_VALUE;
     }
 
     private BasicNetwork constructParticle() {
@@ -38,4 +42,21 @@ public class FFNNParticle {
     public BasicNetwork getParticle() {
         return particle;
     }
+
+    public double[] getLocalBestPosition() {
+        return localBest;
+    }
+
+    public void setLocalBestPosition(double[] localBestPosition) {
+        this.localBest = localBestPosition;
+    }
+
+    public double getLocalBestScore() {
+        return localBestScore;
+    }
+
+    public void setLocalBestScore(double localBestScore) {
+        this.localBestScore = localBestScore;
+    }
+
 }

@@ -95,11 +95,9 @@ public class Simulator {
 
             MLTrain trainAlt = new NeuralSimulatedAnnealing(nn.getParticle(), score, 10, 2, 100);
             MLTrain trainMain = new Backpropagation(nn.getParticle(), dataSet, errorGoal, 0.0);
-            StopTrainingStrategy stop = new StopTrainingStrategy();
 
             trainMain.addStrategy(new Greedy());
             trainMain.addStrategy(new HybridStrategy(trainAlt));
-            trainMain.addStrategy(stop);
 
             //For each iteration calculate the value
             for (int j = 0; j < results[i].epochs; j++) {
@@ -140,11 +138,9 @@ public class Simulator {
 
             MLTrain trainAlt = new NeuralSimulatedAnnealing(nn.getParticle(), score, 10, 2, 100);
             MLTrain trainMain = new Backpropagation(nn.getParticle(), dataSet, errorGoal, 0.0);
-            StopTrainingStrategy stop = new StopTrainingStrategy();
 
             trainMain.addStrategy(new Greedy());
             trainMain.addStrategy(new HybridStrategy(trainAlt));
-            trainMain.addStrategy(stop);
 
             //For each iteration calculate the value
             for (int j = 0; j < results[i].epochs; j++) {
@@ -167,11 +163,9 @@ public class Simulator {
 
             MLTrain trainAlt = new NeuralSimulatedAnnealing(nn.getParticle(), score, 10, 2, 100);
             MLTrain trainMain = new Backpropagation(nn.getParticle(), dataSet, errorGoal, 0.0);
-            StopTrainingStrategy stop = new StopTrainingStrategy();
 
             trainMain.addStrategy(new Greedy());
             trainMain.addStrategy(new HybridStrategy(trainAlt));
-            trainMain.addStrategy(stop);
 
             //For each iteration calculate the value
             for (int j = 0; j < results[i].epochs; j++) {
@@ -225,7 +219,7 @@ public class Simulator {
         //For each data file simulate 
         for (int i = 0; i < datasets.length; i++) {
             MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
-            StandardPSO nn = new StandardPSO();
+           //StandardPSO nn = new StandardPSO();
             CalculateScore score = new TrainingSetScore(dataSet);
 
             //For each iteration calculate the value
