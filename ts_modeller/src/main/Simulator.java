@@ -8,6 +8,7 @@ package main;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.LinkedList;
 
 import org.encog.ml.CalculateScore;
 import org.encog.ml.data.MLDataSet;
@@ -36,33 +37,39 @@ public class Simulator {
 
     String[] datasets;
     Reporter[] results;
+    LinkedList<Reporter[]> full_results;
     double errorGoal = 0.0001;
     boolean stuart = true;
+    int epochs;
     DecimalFormat df = new DecimalFormat("#0.0000#");
+    int samples = 55;
 
     Simulator(String[] dataFiles, int iterations) {
+        epochs = iterations;
         datasets = dataFiles;
-        results = new Reporter[dataFiles.length];
-        for (int i = 0; i < dataFiles.length; i++) {
-            results[i] = new Reporter(iterations, dataFiles[i]);
+        results = new Reporter[datasets.length];
+        for (int r = 0; r < datasets.length; r++) {
+            results[r] = new Reporter(epochs, datasets[r]);
         }
     }
 
     public void start() {
-        try {
-            System.out.println("Running standard FFNN");
-            simulateFFNN();
-            System.out.println("Running standard Elman RNN");
-            simulateElman();
-            System.out.println("Running standard Jordan RNN");
-            simulateJordan();
-        } catch (Exception experimentException) {
-            experimentException.printStackTrace();
-        }
+
+        System.out.println("Running standard FFNN");
+        simulateFFNN();
+
+        System.out.println("Running standard Elman RNN");
+        simulateElman();
+
+        System.out.println("Running standard Jordan RNN");
+        simulateJordan();
+
+        System.out.println("Running standard PSO");
+        simulateStandardPSO();
 
         for (int i = 0; i < results.length; i++) {
             if (stuart) {
-                System.out.println("Output configured to stuart");
+                //System.out.println("Output configured to stuart");
                 switch (i) {
                     case 0:
                         results[i].printToCSV("Ouput_Brazil.csv");
@@ -100,9 +107,20 @@ public class Simulator {
             trainMain.addStrategy(new HybridStrategy(trainAlt));
 
             //For each iteration calculate the value
+            int repeated = 0;
+            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
                 double value = trainMain.getError();;
+
+                if (prev_value == value) {
+                    repeated++;
+                    if (repeated >= 50) {
+                        break;
+                    }
+                } else {
+                    prev_value = value;
+                }
 
                 //Save the value in results
                 results[i].get(j).setElman(value);
@@ -119,9 +137,20 @@ public class Simulator {
             CalculateScore score = new TrainingSetScore(dataSet);
 
             //For each iteration calculate the value
+            int repeated = 0;
+            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
                 double value = 0.0;
+
+                if (prev_value == value) {
+                    repeated++;
+                    if (repeated >= 50) {
+                        break;
+                    }
+                } else {
+                    prev_value = value;
+                }
 
                 //Save the value in results
                 results[i].get(j).setHopfield(value);
@@ -143,9 +172,20 @@ public class Simulator {
             trainMain.addStrategy(new HybridStrategy(trainAlt));
 
             //For each iteration calculate the value
+            int repeated = 0;
+            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
                 double value = trainMain.getError();
+
+                if (prev_value == value) {
+                    repeated++;
+                    if (repeated >= 50) {
+                        break;
+                    }
+                } else {
+                    prev_value = value;
+                }
 
                 //Save the value in results
                 results[i].get(j).setJordan(value);
@@ -168,9 +208,20 @@ public class Simulator {
             trainMain.addStrategy(new HybridStrategy(trainAlt));
 
             //For each iteration calculate the value
+            int repeated = 0;
+            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
                 double value = trainMain.getError();
+
+                if (prev_value == value) {
+                    repeated++;
+                    if (repeated >= 50) {
+                        break;
+                    }
+                } else {
+                    prev_value = value;
+                }
 
                 //Save the value in results
                 results[i].get(j).setFFNN(value);
@@ -187,6 +238,8 @@ public class Simulator {
             CalculateScore score = new TrainingSetScore(dataSet);
 
             //For each iteration calculate the value
+            int repeated = 0;
+            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
                 double value = 0.0;
@@ -205,9 +258,20 @@ public class Simulator {
             CalculateScore score = new TrainingSetScore(dataSet);
 
             //For each iteration calculate the value
+            int repeated = 0;
+            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; i++) {
 
                 double value = 0.0;
+
+                if (prev_value == value) {
+                    repeated++;
+                    if (repeated >= 50) {
+                        break;
+                    }
+                } else {
+                    prev_value = value;
+                }
 
                 //Save the value in results
                 results[i].get(j).setQuantumPSO(value);
@@ -219,13 +283,25 @@ public class Simulator {
         //For each data file simulate 
         for (int i = 0; i < datasets.length; i++) {
             MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
-           //StandardPSO nn = new StandardPSO();
-            CalculateScore score = new TrainingSetScore(dataSet);
+            //StandardPSO nn = new StandardPSO();
+            StandardPSO nn = new StandardPSO(3, 22, 30, 1, dataSet);
 
             //For each iteration calculate the value
+            int repeated = 0;
+            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
-                double value = 0.0;
+                nn.iteration();
+                double value = nn.getScore(nn.gbest);
+
+                if (prev_value == value) {
+                    repeated++;
+                    if (repeated >= 50) {
+                        break;
+                    }
+                } else {
+                    prev_value = value;
+                }
 
                 //Save the value in results
                 results[i].get(j).setStandardPSO(value);

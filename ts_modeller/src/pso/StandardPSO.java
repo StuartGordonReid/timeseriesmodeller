@@ -32,7 +32,7 @@ public class StandardPSO {
     double social = 0.75;
     double local = 0.25;
     CalculateScore score;
-    FFNNParticle gbest;
+    public FFNNParticle gbest;
 
     public StandardPSO(int populationSize, int in, int hidden, int out, MLDataSet dataS) {
         numInputs = in;
@@ -50,7 +50,7 @@ public class StandardPSO {
     }
 
     public void test() {
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 5000; i++) {
             iteration();
             //System.out.println(gbest.getParticle().dumpWeights());
             System.out.println(getScore(gbest));
@@ -113,7 +113,7 @@ public class StandardPSO {
             double c = local * (lbest_score - particle_score);
             double v = particle.velocity + s + c;
 
-            particle.velocity = v;
+            particle.velocity = v * 0.5;
         }
     }
 
@@ -153,7 +153,7 @@ public class StandardPSO {
         }
     }
 
-    private double getScore(FFNNParticle particle) {
+    public double getScore(FFNNParticle particle) {
         MLTrain trainAlt = new NeuralSimulatedAnnealing(particle.getParticle(), score, 10, 2, 100);
         MLTrain trainMain = new Backpropagation(particle.getParticle(), dataSet, errorGoal, 0.0);
 
