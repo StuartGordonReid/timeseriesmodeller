@@ -23,7 +23,7 @@ public class Main {
         "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/SOUTHAFRICA_train.egb"};
 
     public static void main(String[] args) {
-        Simulator sim = new Simulator(countries, 5000);
+        Simulator sim = new Simulator(countries, 1500);
         sim.start();
     }
 

@@ -43,18 +43,25 @@ public class Reporter {
             File f = new File(fullName);
             FileWriter fwriter = new FileWriter(fullName);
 
-            String lineOut = "Iteration,Elman,Hopfield,Jordan,FFNN,QuantumPSO,ChargedPSO,StandardPSO,Goal";
+            String lineOut = "Iteration,ElmanSSE,ElmanPE,JordanSSE,JordanPE,"
+                    + "FFNNSSE,FFNNPE,QuantumPSOSSE,QuantumPSOPE,ChargedPSOSSE,"
+                    + "ChargedPSOPE,StandardPSOSSE,StandardPE,Goal";
             fwriter.write(lineOut);
 
             for (Datum d : data) {
                 lineOut = "" + d.getIteration() + ",";
-                lineOut += d.getElman() + ",";
-                lineOut += d.getHopfield() + ",";
-                lineOut += d.getJordan() + ",";
-                lineOut += d.getFFNN() + ",";
-                lineOut += d.getQuantumPSO() + ",";
-                lineOut += d.getChargedPSO() + ",";
-                lineOut += d.getStandardPSO() + ",";
+                lineOut += d.getElmanSSE() + ",";
+                lineOut += d.getElmanPE() + ",";
+                lineOut += d.getJordanSSE() + ",";
+                lineOut += d.getJordanPE() + ",";
+                lineOut += d.getFFNNSSE() + ",";
+                lineOut += d.getFFNNPE() + ",";
+                lineOut += d.getQuantumPSOSSE() + ",";
+                lineOut += d.getQuantumPSOPE() + ",";
+                lineOut += d.getChargedPSOSSE() + ",";
+                lineOut += d.getChargedPSOPE() + ",";
+                lineOut += d.getStandardPSOSSE() + ",";
+                lineOut += d.getStandardPSOPE() + ",";
                 lineOut += d.getGoal() + "\n";
                 fwriter.write(lineOut);
                 fwriter.flush();

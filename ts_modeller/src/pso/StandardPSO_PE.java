@@ -13,6 +13,7 @@ import org.encog.ml.data.MLDataSet;
 import org.encog.ml.train.MLTrain;
 import org.encog.ml.train.strategy.Greedy;
 import org.encog.ml.train.strategy.HybridStrategy;
+import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.training.TrainingSetScore;
 import org.encog.neural.networks.training.anneal.NeuralSimulatedAnnealing;
 import org.encog.neural.networks.training.propagation.back.Backpropagation;
@@ -22,7 +23,7 @@ import org.encog.util.simple.EncogUtility;
  *
  * @author stuart
  */
-public class StandardPSO {
+public class StandardPSO_PE {
 
     LinkedList<FFNNParticle> population;
     LinkedList<double[]> vectorPopulation;
@@ -34,7 +35,7 @@ public class StandardPSO {
     CalculateScore score;
     public FFNNParticle gbest;
 
-    public StandardPSO(int populationSize, int in, int hidden, int out, MLDataSet dataS) {
+    public StandardPSO_PE(int populationSize, int in, int hidden, int out, MLDataSet dataS) {
         numInputs = in;
         numHidden = hidden;
         numOutputs = out;
@@ -49,11 +50,34 @@ public class StandardPSO {
         }
     }
 
+    public double getMeanPredictionError(BasicNetwork nn) {
+        MLTrain trainAlt = new NeuralSimulatedAnnealing(nn, score, 10, 2, 100);
+        MLTrain trainMain = new Backpropagation(nn, dataSet, errorGoal, 0.0);
+
+        trainMain.addStrategy(new Greedy());
+        trainMain.addStrategy(new HybridStrategy(trainAlt));
+
+        trainMain.iteration();
+
+        double totalPredictionError = 0.0;
+        for (int k = 0; k < dataSet.size(); k++) {
+            double prediction = nn.compute(dataSet.get(k).getInput()).getData(0);
+            double aim = dataSet.get(k).getIdeal().getData(0);
+            if (prediction > aim) {
+                totalPredictionError += prediction - aim;
+            } else {
+                totalPredictionError += aim - prediction;
+            }
+        }
+        return totalPredictionError / dataSet.size();
+    }
+
     public void test() {
         for (int i = 0; i < 5000; i++) {
             iteration();
             //System.out.println(gbest.getParticle().dumpWeights());
             System.out.println(getScore(gbest));
+            System.out.println(getMeanPredictionError(gbest.getParticle()));
         }
     }
 
@@ -103,17 +127,17 @@ public class StandardPSO {
     }
 
     private void setVelocities() {
-        double gbest_score = getScore(gbest);
+        double gbest_score = getMeanPredictionError(gbest.getParticle());
 
         for (FFNNParticle particle : population) {
             double lbest_score = particle.localBestScore;
-            double particle_score = getScore(particle);
+            double particle_score = getMeanPredictionError(particle.getParticle());
 
-            double s = social * (gbest_score - particle_score);
-            double c = local * (lbest_score - particle_score);
+            double s = social * (particle_score - gbest_score);
+            double c = local * (particle_score - lbest_score);
             double v = particle.velocity + s + c;
 
-            particle.velocity = v * 0.5;
+            particle.velocity = v * 0.25;
         }
     }
 
@@ -123,7 +147,7 @@ public class StandardPSO {
 
         for (FFNNParticle particle : population) {
 
-            double particle_score = getScore(particle);
+            double particle_score = getMeanPredictionError(particle.getParticle());
             if (particle_score < gbest_score) {
                 gbest = particle;
                 gbest_score = particle_score;
@@ -140,7 +164,7 @@ public class StandardPSO {
 
     private void updateLocalBests() {
         for (FFNNParticle particle : population) {
-            double particle_score = getScore(particle);
+            double particle_score = getMeanPredictionError(particle.getParticle());
 
             if (particle_score < particle.getLocalBestScore()) {
                 int numConnections = particle.getParticle().encodedArrayLength();
@@ -160,9 +184,7 @@ public class StandardPSO {
         trainMain.addStrategy(new Greedy());
         trainMain.addStrategy(new HybridStrategy(trainAlt));
 
-        for (int i = 0; i < 3; i++) {
-            trainMain.iteration();
-        }
+        trainMain.iteration();
 
         //System.out.println(trainMain.getError());
         return trainMain.getError();
@@ -171,7 +193,7 @@ public class StandardPSO {
     public static void main(String args[]) {
         String name = "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/BRAZIL_train.egb";
         MLDataSet data = EncogUtility.loadEGB2Memory(new File(name));
-        StandardPSO pso = new StandardPSO(30, 22, 30, 1, data);
+        StandardPSO_PE pso = new StandardPSO_PE(30, 22, 30, 2, data);
         pso.test();
     }
 }

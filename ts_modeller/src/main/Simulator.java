@@ -16,6 +16,7 @@ import org.encog.ml.train.MLTrain;
 import org.encog.ml.train.strategy.Greedy;
 import org.encog.ml.train.strategy.HybridStrategy;
 import org.encog.ml.train.strategy.StopTrainingStrategy;
+import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.training.TrainingSetScore;
 import org.encog.neural.networks.training.anneal.NeuralSimulatedAnnealing;
 import org.encog.neural.networks.training.propagation.back.Backpropagation;
@@ -24,7 +25,8 @@ import org.encog.util.simple.EncogUtility;
 import pso.ChargedPSO;
 import pso.FFNNParticle;
 import pso.QuantumPSO;
-import pso.StandardPSO;
+import pso.StandardPSO_PE;
+import pso.StandardPSO_SSE;
 import recurrent.Elman;
 import recurrent.Hopfield;
 import recurrent.Jordan;
@@ -65,7 +67,7 @@ public class Simulator {
         simulateJordan();
 
         System.out.println("Running standard PSO");
-        simulateStandardPSO();
+        simulateStandardPSOSSE();
 
         for (int i = 0; i < results.length; i++) {
             if (stuart) {
@@ -93,11 +95,27 @@ public class Simulator {
         }
     }
 
+    public double getTotalPredictionError(MLDataSet dataSet, BasicNetwork nn) {
+        double totalPredictionError = 0.0;
+        for (int k = 0; k < dataSet.size(); k++) {
+            double prediction = nn.compute(dataSet.get(k).getInput()).getData(0);
+            double aim = dataSet.get(k).getIdeal().getData(0);
+            if (prediction > aim) {
+                double error = prediction - aim;
+                totalPredictionError += error * error;
+            } else {
+                double error = aim - prediction;
+                totalPredictionError += error * error;
+            }
+        }
+        return totalPredictionError;
+    }
+
     public void simulateElman() {
         //For each data file simulate 
         for (int i = 0; i < datasets.length; i++) {
             MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
-            Elman nn = new Elman(22, 30, 1);
+            Elman nn = new Elman(22, 30, 2);
             CalculateScore score = new TrainingSetScore(dataSet);
 
             MLTrain trainAlt = new NeuralSimulatedAnnealing(nn.getParticle(), score, 10, 2, 100);
@@ -107,53 +125,26 @@ public class Simulator {
             trainMain.addStrategy(new HybridStrategy(trainAlt));
 
             //For each iteration calculate the value
-            int repeated = 0;
-            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
                 double value = trainMain.getError();;
 
-                if (prev_value == value) {
-                    repeated++;
-                    if (repeated >= 50) {
-                        break;
-                    }
-                } else {
-                    prev_value = value;
-                }
-
                 //Save the value in results
-                results[i].get(j).setElman(value);
+                results[i].get(j).setElmanSSE(value);
+
+                double predictionError = getTotalPredictionError(dataSet, nn.getParticle());
+                results[i].get(j).setElmanPE(predictionError);
+
                 trainMain.iteration();
             }
-        }
-    }
 
-    public void simulateHopfield() {
-        //For each data file simulate 
-        for (int i = 0; i < datasets.length; i++) {
-            MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
-            Hopfield nn = new Hopfield();
-            CalculateScore score = new TrainingSetScore(dataSet);
-
-            //For each iteration calculate the value
-            int repeated = 0;
-            double prev_value = Double.MAX_VALUE;
-            for (int j = 0; j < results[i].epochs; j++) {
-
-                double value = 0.0;
-
-                if (prev_value == value) {
-                    repeated++;
-                    if (repeated >= 50) {
-                        break;
-                    }
-                } else {
-                    prev_value = value;
+            if (i == 0) {
+                System.out.println("Elman end state");
+                for (int k = 0; k < dataSet.size(); k++) {
+                    double prediction = nn.getParticle().compute(dataSet.get(k).getInput()).getData(0);
+                    double aim = dataSet.get(k).getIdeal().getData(0);
+                    System.out.println(prediction + "," + aim);
                 }
-
-                //Save the value in results
-                results[i].get(j).setHopfield(value);
             }
         }
     }
@@ -162,7 +153,7 @@ public class Simulator {
         //For each data file simulate 
         for (int i = 0; i < datasets.length; i++) {
             MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
-            Jordan nn = new Jordan(22, 30, 1);
+            Jordan nn = new Jordan(22, 30, 2);
             CalculateScore score = new TrainingSetScore(dataSet);
 
             MLTrain trainAlt = new NeuralSimulatedAnnealing(nn.getParticle(), score, 10, 2, 100);
@@ -172,24 +163,26 @@ public class Simulator {
             trainMain.addStrategy(new HybridStrategy(trainAlt));
 
             //For each iteration calculate the value
-            int repeated = 0;
-            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
                 double value = trainMain.getError();
 
-                if (prev_value == value) {
-                    repeated++;
-                    if (repeated >= 50) {
-                        break;
-                    }
-                } else {
-                    prev_value = value;
-                }
-
                 //Save the value in results
-                results[i].get(j).setJordan(value);
+                results[i].get(j).setJordanSSE(value);
+
+                double predictionError = getTotalPredictionError(dataSet, nn.getParticle());
+                results[i].get(j).setJordanPE(predictionError);
+
                 trainMain.iteration();
+            }
+
+            if (i == 0) {
+                System.out.println("Jordan end state");
+                for (int k = 0; k < dataSet.size(); k++) {
+                    double prediction = nn.getParticle().compute(dataSet.get(k).getInput()).getData(0);
+                    double aim = dataSet.get(k).getIdeal().getData(0);
+                    System.out.println(prediction + "," + aim);
+                }
             }
         }
     }
@@ -198,7 +191,7 @@ public class Simulator {
         //For each data file simulate 
         for (int i = 0; i < datasets.length; i++) {
             MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
-            FFNNParticle nn = new FFNNParticle(22, 30, 1);
+            FFNNParticle nn = new FFNNParticle(22, 30, 2);
             CalculateScore score = new TrainingSetScore(dataSet);
 
             MLTrain trainAlt = new NeuralSimulatedAnnealing(nn.getParticle(), score, 10, 2, 100);
@@ -208,24 +201,26 @@ public class Simulator {
             trainMain.addStrategy(new HybridStrategy(trainAlt));
 
             //For each iteration calculate the value
-            int repeated = 0;
-            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
                 double value = trainMain.getError();
 
-                if (prev_value == value) {
-                    repeated++;
-                    if (repeated >= 50) {
-                        break;
-                    }
-                } else {
-                    prev_value = value;
-                }
-
                 //Save the value in results
-                results[i].get(j).setFFNN(value);
+                results[i].get(j).setFFNNSSE(value);
+
+                double predictionError = getTotalPredictionError(dataSet, nn.getParticle());
+                results[i].get(j).setFFNNPE(predictionError);
+
                 trainMain.iteration();
+            }
+
+            if (i == 0) {
+                System.out.println("FFNN end state");
+                for (int k = 0; k < dataSet.size(); k++) {
+                    double prediction = nn.getParticle().compute(dataSet.get(k).getInput()).getData(0);
+                    double aim = dataSet.get(k).getIdeal().getData(0);
+                    System.out.println(prediction + "," + aim);
+                }
             }
         }
     }
@@ -238,14 +233,12 @@ public class Simulator {
             CalculateScore score = new TrainingSetScore(dataSet);
 
             //For each iteration calculate the value
-            int repeated = 0;
-            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
                 double value = 0.0;
 
                 //Save the value in results
-                results[i].get(j).setChargedPSO(value);
+                results[i].get(j).setChargedPSOSSE(value);
             }
         }
     }
@@ -258,53 +251,74 @@ public class Simulator {
             CalculateScore score = new TrainingSetScore(dataSet);
 
             //For each iteration calculate the value
-            int repeated = 0;
-            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; i++) {
 
                 double value = 0.0;
 
-                if (prev_value == value) {
-                    repeated++;
-                    if (repeated >= 50) {
-                        break;
-                    }
-                } else {
-                    prev_value = value;
-                }
-
                 //Save the value in results
-                results[i].get(j).setQuantumPSO(value);
+                results[i].get(j).setQuantumPSOSSE(value);
             }
         }
     }
 
-    public void simulateStandardPSO() {
+    public void simulateStandardPSOSSE() {
         //For each data file simulate 
         for (int i = 0; i < datasets.length; i++) {
             MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
-            //StandardPSO nn = new StandardPSO();
-            StandardPSO nn = new StandardPSO(3, 22, 30, 1, dataSet);
+            //StandardPSO nn = new StandardPSO_SSE();
+            StandardPSO_SSE nn = new StandardPSO_SSE(3, 22, 30, 2, dataSet);
 
             //For each iteration calculate the value
-            int repeated = 0;
-            double prev_value = Double.MAX_VALUE;
             for (int j = 0; j < results[i].epochs; j++) {
 
                 nn.iteration();
                 double value = nn.getScore(nn.gbest);
 
-                if (prev_value == value) {
-                    repeated++;
-                    if (repeated >= 50) {
-                        break;
-                    }
-                } else {
-                    prev_value = value;
+                //Save the value in results
+                results[i].get(j).setStandardPSOSSE(value);
+
+                double predictionError = getTotalPredictionError(dataSet, nn.gbest.getParticle());
+                results[i].get(j).setStandardPSOPE(predictionError);
+            }
+
+            if (i == 0) {
+                System.out.println("PSO end state");
+                for (int k = 0; k < dataSet.size(); k++) {
+                    double prediction = nn.gbest.getParticle().compute(dataSet.get(k).getInput()).getData(0);
+                    double aim = dataSet.get(k).getIdeal().getData(0);
+                    System.out.println(prediction + "," + aim);
                 }
+            }
+        }
+    }
+
+    public void simulateStandardPSOPE() {
+        //For each data file simulate 
+        for (int i = 0; i < datasets.length; i++) {
+            MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
+            //StandardPSO nn = new StandardPSO_SSE();
+            StandardPSO_PE nn = new StandardPSO_PE(3, 22, 30, 2, dataSet);
+
+            //For each iteration calculate the value
+            for (int j = 0; j < results[i].epochs; j++) {
+
+                nn.iteration();
+                double value = nn.getScore(nn.gbest);
 
                 //Save the value in results
-                results[i].get(j).setStandardPSO(value);
+                results[i].get(j).setStandardPSOSSE(value);
+
+                double predictionError = getTotalPredictionError(dataSet, nn.gbest.getParticle());
+                results[i].get(j).setStandardPSOPE(predictionError);
+            }
+
+            if (i == 4) {
+                System.out.println("PSO end state");
+                for (int k = 0; k < dataSet.size(); k++) {
+                    double prediction = nn.gbest.getParticle().compute(dataSet.get(k).getInput()).getData(0);
+                    double aim = dataSet.get(k).getIdeal().getData(0);
+                    System.out.println(prediction + "," + aim);
+                }
             }
         }
     }
