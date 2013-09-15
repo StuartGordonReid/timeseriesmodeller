@@ -35,10 +35,10 @@ public class Simulator {
     Reporter[] results;
     LinkedList<Reporter[]> full_results;
     double errorGoal = 0.0001;
-    boolean stuart = true;
+    boolean stuart = false;
     int epochs;
     DecimalFormat df = new DecimalFormat("#0.0000#");
-    int samples = 55;
+    int samples = 2;
 
     Simulator(String[] dataFiles, int iterations) {
         epochs = iterations;
@@ -77,6 +77,14 @@ public class Simulator {
                         break;
                 }
             } else {
+                switch (i) {
+                    case 0:
+                        results[i].printData("Ouput_GOOG.csv");
+                        break;
+                    case 1:
+                        results[i].printData("Ouput_MON.csv");
+                        break;
+                }
                 System.out.println("Output configured to simon");
             }
         }
@@ -104,7 +112,7 @@ public class Simulator {
             //For each data file simulate 
             for (int i = 0; i < datasets.length; i++) {
                 MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
-                Elman nn = new Elman(22, 30, 2);
+                Elman nn = new Elman(12, 16, 2);
                 CalculateScore score = new TrainingSetScore(dataSet);
 
                 MLTrain trainAlt = new NeuralSimulatedAnnealing(nn.getParticle(), score, 10, 2, 100);
@@ -139,7 +147,7 @@ public class Simulator {
             //For each data file simulate 
             for (int i = 0; i < datasets.length; i++) {
                 MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
-                Jordan nn = new Jordan(22, 30, 2);
+                Jordan nn = new Jordan(12, 16, 2);
                 CalculateScore score = new TrainingSetScore(dataSet);
 
                 MLTrain trainAlt = new NeuralSimulatedAnnealing(nn.getParticle(), score, 10, 2, 100);
@@ -174,7 +182,7 @@ public class Simulator {
             //For each data file simulate 
             for (int i = 0; i < datasets.length; i++) {
                 MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
-                FFNNParticle nn = new FFNNParticle(22, 30, 2);
+                FFNNParticle nn = new FFNNParticle(12, 16, 2);
                 CalculateScore score = new TrainingSetScore(dataSet);
 
                 MLTrain trainAlt = new NeuralSimulatedAnnealing(nn.getParticle(), score, 10, 2, 100);
@@ -210,7 +218,7 @@ public class Simulator {
             for (int i = 0; i < datasets.length; i++) {
                 MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
                 //StandardPSO nn = new StandardPSO();
-                StandardPSO nn = new StandardPSO(3, 22, 30, 2, dataSet);
+                StandardPSO nn = new StandardPSO(3, 12, 16, 2, dataSet);
 
                 //For each iteration calculate the value
                 for (int j = 0; j < results[i].epochs; j++) {
@@ -239,7 +247,7 @@ public class Simulator {
             for (int i = 0; i < datasets.length; i++) {
                 MLDataSet dataSet = EncogUtility.loadEGB2Memory(new File(datasets[i]));
                 //StandardPSO nn = new StandardPSO();
-                ChargedPSO nn = new ChargedPSO(3, 22, 30, 2, dataSet);
+                ChargedPSO nn = new ChargedPSO(3, 12, 16, 2, dataSet);
 
                 //For each iteration calculate the value
                 for (int j = 0; j < results[i].epochs; j++) {

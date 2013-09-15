@@ -15,15 +15,20 @@ public class Main {
     /**
      * @param args the command line arguments
      */
-    public static String[] countries = new String[]{
+    /*public static String[] countries = new String[]{
         "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/BRAZIL_train.egb",
         "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/RUSSIA_train.egb",
         "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/INDIA_train.egb",
         "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/CHINA_train.egb",
-        "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/SOUTHAFRICA_train.egb"};
+        "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/SOUTHAFRICA_train.egb"};*/
 
+    public static String[] companies = new String[] {
+        "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/GOOG.egb",
+        "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/MON.egb"
+    };
+    
     public static void main(String[] args) {
-        Simulator sim = new Simulator(countries, 5000);
+        Simulator sim = new Simulator(companies, 5000);
         sim.start();
     }
 
