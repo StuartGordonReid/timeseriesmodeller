@@ -6,6 +6,8 @@
 
 package main;
 
+import java.util.LinkedList;
+
 /**
  *
  * @author stuart
@@ -14,13 +16,33 @@ public class Datum {
 
     int iteration;
     double goal;
-    double jordanSSE, elmanSSE, FFNNSSE;
-    double chargedPSOSSE, quantumPSOSSE, standardPSOSSE;
-    double jordanPE, elmanPE, FFNNPE;
-    double chargedPSOPE, quantumPSOPE, standardPSOPE;
+
+    LinkedList<Double> jordanSSE, jordanPE;
+    LinkedList<Double> elmanSSE, elmanPE;
+    LinkedList<Double> FFNNSSE, FFNNPE;
+    LinkedList<Double> standardPSOSSE, standardPSOPE;
+    LinkedList<Double> chargedPSOSSE, chargedPSOPE;
 
     Datum(int epoch) {
         iteration = epoch;
+        jordanSSE = new LinkedList();
+        jordanPE = new LinkedList();
+        elmanSSE = new LinkedList();
+        elmanPE = new LinkedList();
+        FFNNSSE = new LinkedList();
+        FFNNPE = new LinkedList();
+        standardPSOSSE = new LinkedList();
+        standardPSOPE = new LinkedList();
+        chargedPSOSSE = new LinkedList();
+        chargedPSOPE = new LinkedList();
+    }
+
+    public double average(LinkedList<Double> list) {
+        double total = 0.0;
+        for (Double d : list) {
+            total += d;
+        }
+        return total / list.size();
     }
 
     public int getIteration() {
@@ -31,108 +53,43 @@ public class Datum {
         this.iteration = iteration;
     }
 
-    public double getGoal() {
-        return goal;
+    public double getAvgJordanSSE() {
+        return average(jordanSSE);
     }
 
-    public void setGoal(double goal) {
-        this.goal = goal;
+    public double getAvgJordanPE() {
+        return average(jordanPE);
     }
 
-    public double getJordanSSE() {
-        return jordanSSE;
+    public double getAvgElmanSSE() {
+        return average(elmanSSE);
     }
 
-    public void setJordanSSE(double jordanSSE) {
-        this.jordanSSE = jordanSSE;
+    public double getAvgElmanPE() {
+        return average(elmanPE);
     }
 
-    public double getElmanSSE() {
-        return elmanSSE;
+    public double getAvgFFNNSSE() {
+        return average(FFNNSSE);
     }
 
-    public void setElmanSSE(double elmanSSE) {
-        this.elmanSSE = elmanSSE;
+    public double getAvgFFNNPE() {
+        return average(FFNNPE);
     }
 
-    public double getFFNNSSE() {
-        return FFNNSSE;
+    public double getAvgStandardPSOSSE() {
+        return average(standardPSOSSE);
     }
 
-    public void setFFNNSSE(double FFNNSSE) {
-        this.FFNNSSE = FFNNSSE;
+    public double getAvgStandardPSOPE() {
+        return average(standardPSOPE);
     }
 
-    public double getChargedPSOSSE() {
-        return chargedPSOSSE;
+    public double getAvgChargedPSOSSE() {
+        return average(chargedPSOSSE);
     }
 
-    public void setChargedPSOSSE(double chargedPSOSSE) {
-        this.chargedPSOSSE = chargedPSOSSE;
+    public double getAvgChargedPSOPE() {
+        return average(chargedPSOPE);
     }
-
-    public double getQuantumPSOSSE() {
-        return quantumPSOSSE;
-    }
-
-    public void setQuantumPSOSSE(double quantumPSOSSE) {
-        this.quantumPSOSSE = quantumPSOSSE;
-    }
-
-    public double getStandardPSOSSE() {
-        return standardPSOSSE;
-    }
-
-    public void setStandardPSOSSE(double standardPSOSSE) {
-        this.standardPSOSSE = standardPSOSSE;
-    }
-
-    public double getJordanPE() {
-        return jordanPE;
-    }
-
-    public void setJordanPE(double jordanPE) {
-        this.jordanPE = jordanPE;
-    }
-
-    public double getElmanPE() {
-        return elmanPE;
-    }
-
-    public void setElmanPE(double elmanPE) {
-        this.elmanPE = elmanPE;
-    }
-
-    public double getFFNNPE() {
-        return FFNNPE;
-    }
-
-    public void setFFNNPE(double FFNNPE) {
-        this.FFNNPE = FFNNPE;
-    }
-
-    public double getChargedPSOPE() {
-        return chargedPSOPE;
-    }
-
-    public void setChargedPSOPE(double chargedPSOPE) {
-        this.chargedPSOPE = chargedPSOPE;
-    }
-
-    public double getQuantumPSOPE() {
-        return quantumPSOPE;
-    }
-
-    public void setQuantumPSOPE(double quantumPSOPE) {
-        this.quantumPSOPE = quantumPSOPE;
-    }
-
-    public double getStandardPSOPE() {
-        return standardPSOPE;
-    }
-
-    public void setStandardPSOPE(double standardPSOPE) {
-        this.standardPSOPE = standardPSOPE;
-    }
-
 }

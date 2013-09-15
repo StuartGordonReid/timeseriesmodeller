@@ -22,7 +22,7 @@ import org.encog.util.simple.EncogUtility;
  *
  * @author stuart
  */
-public class StandardPSO_SSE {
+public class StandardPSO {
 
     LinkedList<FFNNParticle> population;
     LinkedList<double[]> vectorPopulation;
@@ -34,7 +34,7 @@ public class StandardPSO_SSE {
     CalculateScore score;
     public FFNNParticle gbest;
 
-    public StandardPSO_SSE(int populationSize, int in, int hidden, int out, MLDataSet dataS) {
+    public StandardPSO(int populationSize, int in, int hidden, int out, MLDataSet dataS) {
         numInputs = in;
         numHidden = hidden;
         numOutputs = out;
@@ -46,14 +46,6 @@ public class StandardPSO_SSE {
         for (int i = 0; i < populationSize; i++) {
             FFNNParticle particle = new FFNNParticle(numInputs, numHidden, numOutputs);
             population.add(particle);
-        }
-    }
-
-    public void test() {
-        for (int i = 0; i < 5000; i++) {
-            iteration();
-            //System.out.println(gbest.getParticle().dumpWeights());
-            System.out.println(getScore(gbest));
         }
     }
 
@@ -84,20 +76,14 @@ public class StandardPSO_SSE {
 
     private void setPositions() {
         double[] gbest_vector = getGlobalBest();
-
         for (int i = 0; i < population.size(); i++) {
 
             double velocity = population.get(i).velocity;
             double[] particle = vectorPopulation.get(i);
 
             for (int j = 0; j < particle.length; j++) {
-                if (gbest_vector[j] > particle[j]) {
-                    particle[j] -= velocity;
-                } else {
-                    particle[j] += velocity;
-                }
+                particle[j] += velocity;
             }
-
             vectorPopulation.set(i, particle);
         }
     }
@@ -113,7 +99,7 @@ public class StandardPSO_SSE {
             double c = local * (lbest_score - particle_score);
             double v = particle.velocity + s + c;
 
-            particle.velocity = v * 0.5;
+            particle.velocity = v * 0.2;
         }
     }
 
@@ -166,12 +152,5 @@ public class StandardPSO_SSE {
 
         //System.out.println(trainMain.getError());
         return trainMain.getError();
-    }
-
-    public static void main(String args[]) {
-        String name = "/home/stuart/stuartgordonreid@gmail.com/Time series/timeseriesmodeller/ts_modeller/src/data/BRAZIL_train.egb";
-        MLDataSet data = EncogUtility.loadEGB2Memory(new File(name));
-        StandardPSO_SSE pso = new StandardPSO_SSE(30, 22, 30, 1, data);
-        pso.test();
     }
 }

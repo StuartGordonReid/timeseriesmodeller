@@ -15,11 +15,11 @@ import java.util.LinkedList;
  * @author stuart
  */
 public class Reporter {
-
+    
+    int epochs;
     String dataFile;
     LinkedList<Datum> data;
-    int epochs;
-
+    
     Reporter(int iter, String file) {
         epochs = iter;
         data = new LinkedList();
@@ -28,41 +28,37 @@ public class Reporter {
         }
         dataFile = file;
     }
-
+    
     public void add(Datum dat) {
         data.add(dat);
     }
-
+    
     public Datum get(int epoch) {
         return data.get(epoch);
     }
-
-    public void printToCSV(String fileName) {
+    
+    public void printData(String fileName) {
         try {
             String fullName = fileName;
             File f = new File(fullName);
             FileWriter fwriter = new FileWriter(fullName);
-
-            String lineOut = "Iteration,ElmanSSE,ElmanPE,JordanSSE,JordanPE,"
-                    + "FFNNSSE,FFNNPE,QuantumPSOSSE,QuantumPSOPE,ChargedPSOSSE,"
-                    + "ChargedPSOPE,StandardPSOSSE,StandardPE,Goal";
+            
+            String lineOut = "Iteration,AvgElmanSSE,AvgElmanPE,AvgJordanSSE,AvgJordanPE,"
+                    + "AvgFFNNSSE,AvgFFNNPE,AvgStandardPSOSSE,AvgStandardPE,AvgChargedPSOSSE,AvgChargedPE\n";
             fwriter.write(lineOut);
-
+            
             for (Datum d : data) {
                 lineOut = "" + d.getIteration() + ",";
-                lineOut += d.getElmanSSE() + ",";
-                lineOut += d.getElmanPE() + ",";
-                lineOut += d.getJordanSSE() + ",";
-                lineOut += d.getJordanPE() + ",";
-                lineOut += d.getFFNNSSE() + ",";
-                lineOut += d.getFFNNPE() + ",";
-                lineOut += d.getQuantumPSOSSE() + ",";
-                lineOut += d.getQuantumPSOPE() + ",";
-                lineOut += d.getChargedPSOSSE() + ",";
-                lineOut += d.getChargedPSOPE() + ",";
-                lineOut += d.getStandardPSOSSE() + ",";
-                lineOut += d.getStandardPSOPE() + ",";
-                lineOut += d.getGoal() + "\n";
+                lineOut += d.getAvgElmanSSE() + ",";
+                lineOut += d.getAvgElmanPE() + ",";
+                lineOut += d.getAvgJordanSSE() + ",";
+                lineOut += d.getAvgJordanPE() + ",";
+                lineOut += d.getAvgFFNNSSE() + ",";
+                lineOut += d.getAvgFFNNPE() + ",";
+                lineOut += d.getAvgStandardPSOSSE() + ",";
+                lineOut += d.getAvgStandardPSOPE() + ",";
+                lineOut += d.getAvgChargedPSOSSE() + ",";
+                lineOut += d.getAvgChargedPSOPE() + "\n";
                 fwriter.write(lineOut);
                 fwriter.flush();
             }
@@ -70,5 +66,4 @@ public class Reporter {
             err.printStackTrace();
         }
     }
-
 }
